@@ -2,6 +2,7 @@ import { gpx } from "https://unpkg.com/@tmcw/togeojson?module";
 
 import EsriMap from "esri/Map.js";
 import SceneView from "esri/views/SceneView.js";
+import MapView from "esri/views/MapView.js";
 import ElevationProfile from "esri/widgets/ElevationProfile.js";
 import LayerList from "esri/widgets/LayerList.js";
 import FeatureLayer from "esri/layers/FeatureLayer.js";
@@ -12,26 +13,16 @@ import Graphic from "esri/Graphic.js";
 import GraphicsLayer from "esri/layers/GraphicsLayer.js";
 
 const map = new EsriMap({
-  basemap: "satellite",
+  basemap: "topo",
   ground: "world-elevation",
 });
 
-const view = new SceneView({
+const view = new MapView({
   map: map,
   container: "viewDiv",
   qualityProfile: "high",
-  camera: {
-    position: [
-      -118,
-      36,
-      8096.99619
-    ],
-    heading: 194.07,
-    tilt: 69.62
-  },
-  environment: {
-    atmosphere: { quality: "high" },
-  },
+  center: [-118.48858, 36.82330],
+  zoom: 11,
   ui: {
     components: ["attribution"],
   },
