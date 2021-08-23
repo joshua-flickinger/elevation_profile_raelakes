@@ -22,8 +22,8 @@ const view = new SceneView({
   qualityProfile: "high",
   camera: {
     position: [
-      8.61963097,
-      47.45510108,
+      -118,
+      36,
       8096.99619
     ],
     heading: 194.07,
@@ -56,7 +56,7 @@ view.ui.add(elevationProfile, "top-right");
 
 (async () => {
   // read the gpx file and convert it to geojson
-  const response = await fetch("./cycling.gpx");
+  const response = await fetch("./RaeLakes.gpx");
   const gpxcontent = await response.text();
   const geojson = gpx(new DOMParser().parseFromString(gpxcontent, "text/xml"));
   const heartRates = geojson.features[0].properties.coordinateProperties.heart;
