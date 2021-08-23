@@ -13,16 +13,26 @@ import Graphic from "esri/Graphic.js";
 import GraphicsLayer from "esri/layers/GraphicsLayer.js";
 
 const map = new EsriMap({
-  basemap: "topo",
+  basemap: "satellite",
   ground: "world-elevation",
 });
 
-const view = new MapView({
+const view = new SceneView({
   map: map,
   container: "viewDiv",
   qualityProfile: "high",
-  center: [-118.48858, 36.82330],
-  zoom: 11,
+  camera: {
+    position: [
+      -118.48858,
+      36.82330,
+      8096.99619
+    ],
+    heading: 0,
+    tilt: 15
+  },
+  environment: {
+    atmosphere: { quality: "high" },
+  },
   ui: {
     components: ["attribution"],
   },
