@@ -28,7 +28,7 @@ const view = new SceneView({
       30000
     ],
     heading: 0,
-    tilt: 15
+    tilt: 0
   },
   environment: {
     atmosphere: { quality: "high" },
@@ -44,7 +44,7 @@ const view = new SceneView({
 const elevationProfile = new ElevationProfile({
   view,
   profiles: [
-    new ElevationProfileLineInput({ color: [245, 203, 66], title: "Bicycle track" }),
+    new ElevationProfileLineInput({ color: [245, 203, 66], title: "Hike Track" }),
   ],
   visibleElements: {
     selectButton: false,
@@ -60,7 +60,6 @@ view.ui.add(elevationProfile, "top-right");
   const response = await fetch("./RaeLakes.gpx");
   const gpxcontent = await response.text();
   const geojson = gpx(new DOMParser().parseFromString(gpxcontent, "text/xml"));
-  const heartRates = geojson.features[0].properties.coordinateProperties.heart;
   const coordinates = geojson.features[0].geometry.coordinates;
 
   // add the track as an input for the ElevationProfile widget
@@ -70,8 +69,8 @@ view.ui.add(elevationProfile, "top-right");
   });
   elevationProfile.input = new Graphic({ geometry: geometry });
 
-  // add the bike track layer
-  const bikeTrackLayer = new GraphicsLayer({
+  // add the hike track layer
+  const hikeTrackLayer = new GraphicsLayer({
     elevationInfo: {
       mode: "relative-to-ground",
       featureExpressionInfo: {
@@ -79,10 +78,9 @@ view.ui.add(elevationProfile, "top-right");
       }
     },
     listMode: "hide",
-    copyright: "Bicycle track provided by Hugo Campos"
   });
 
-  const bikeTrack = new Graphic({
+  const hikeTrack = new Graphic({
     geometry: geometry,
     symbol: new LineSymbol3D({
       symbolLayers: [new LineSymbol3DLayer({
@@ -91,71 +89,7 @@ view.ui.add(elevationProfile, "top-right");
       })]
     })
   });
-  bikeTrackLayer.add(bikeTrack);
-
-  // create a second layer of the bike track
-  // displaying the heart rate on each segment
-  const source = [];
-  // here we sample every second point to get better performance
-  for (let i = 0; i < coordinates.length - 2; i+=2) {
-    const point1 = coordinates[i];
-    const point2 = coordinates[i+2];
-    const heart1 = heartRates[i];
-    const heart2 = heartRates[i+2];
-    const id = i;
-    source.push(getPolyline({
-      point1,
-      point2,
-      heart1,
-      heart2,
-      id
-    }));
-  }
-
-  const heartRateLayer = new FeatureLayer({
-    source: source,
-    objectIdField: "ObjectID",
-    title: "Bicycle track visualized by heart rate",
-    copyright: "Bicycle track provided by Hugo Campos",
-    fields: [{
-      name: "ObjectID",
-      alias: "ObjectID",
-      type: "oid"
-    }, {
-      name: "heartRate",
-      alias: "heartRate",
-      type: "double"
-    }],
-    elevationInfo: {
-      mode: "relative-to-ground",
-      featureExpressionInfo: {
-        expression: "5"
-      }
-    },
-    visible: false,
-    renderer: {
-      type: "simple",
-      symbol: new LineSymbol3D({
-        symbolLayers: [new LineSymbol3DLayer({
-          material: { color: "white" },
-          size: 3,
-          join: "round",
-          cap: "round"
-        })]
-      }),
-      visualVariables: [{
-        type: "color",
-        field: "heartRate",
-        legendOptions: {
-          title: "Heart rate in bpm"
-        },
-        stops: [
-          { value: 130, color:  [255, 208, 0] , label: "<= 130bpm" },
-          { value: 190, color:  [255, 60, 0] , label: ">= 190bpm" }
-        ]
-      }]
-    }
-  });
+  hikeTrackLayer.add(hikeTrack);
 
   // create a point layer showing the start and the end points of the track
   const start = coordinates[0];
@@ -215,42 +149,9 @@ view.ui.add(elevationProfile, "top-right");
     }
   });
 
-  map.addMany([bikeTrackLayer, pointsLayer, heartRateLayer]);
-
-  const layerList = new LayerList({
-    view: view,
-    // display the legend of the layers in the layer list
-    listItemCreatedFunction: function(event){
-      const item = event.item;
-      if (item.layer.title === "Bicycle track visualized by heart rate") {
-        item.watch("visible", function(value) {
-          bikeTrackLayer.visible = !value;
-        });
-      }
-      item.panel = {
-        content: "legend"
-      };
-    }
-  });
-
-  view.ui.add(layerList, "top-right");
+  map.addMany([hikeTrackLayer, pointsLayer]);
 
 })();
-
-function getPolyline(values) {
-  const {point1, point2, heart1, heart2, id} = values;
-  const avgHeartRate = (heart1 + heart2)/2;
-  return {
-    geometry: new Polyline({
-      paths: [[point1, point2]],
-      hasZ: true
-    }),
-    attributes: {
-      ObjectId: id,
-      heartRate: avgHeartRate
-    }
-  };
-}
 
 function getPointSymbol(color) {
   return new PointSymbol3D({
