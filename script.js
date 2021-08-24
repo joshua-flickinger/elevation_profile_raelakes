@@ -24,7 +24,7 @@ const view = new SceneView({
   camera: {
     position: [
       -118.45339,
-      36.5,
+      36.6,
       40000
     ],
     heading: 0,
