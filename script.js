@@ -25,7 +25,7 @@ const view = new SceneView({
     position: [
       -118.48858,
       36.82330,
-      8096.99619
+      30000
     ],
     heading: 0,
     tilt: 15
